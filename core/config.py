@@ -1,5 +1,6 @@
 from pydantic_settings import BaseSettings
 from dotenv import load_dotenv
+import os
 
 
 load_dotenv()
@@ -8,7 +9,7 @@ class Settings(BaseSettings):
     SUPABASE_URL: str
     SUPABASE_KEY: str
     TELEGRAM_BOT_TOKEN: str
-    port: int = 8000
+    port: int = int(os.getenv("PORT", "8000"))  # Render provides PORT env var
     dev_mode: bool = False
 
     class Config:
