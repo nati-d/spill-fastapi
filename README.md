@@ -98,7 +98,8 @@ spill-backend/
 ├── core/
 │   └── config.py          # Application configuration and settings
 ├── database/
-│   └── supabase.py        # Supabase client initialization
+│   ├── supabase.py        # Supabase client initialization
+│   └── schema.sql         # Database schema migration
 ├── features/
 │   ├── auth/
 │   │   ├── router.py      # Authentication routes
@@ -126,13 +127,36 @@ spill-backend/
 - **Uvicorn**: ASGI server for running FastAPI
 - **python-dotenv**: Environment variable management
 
-## Database Schema
+## Database Setup
 
-The `profiles` table should have the following structure:
-- `telegram_id` (integer, unique, primary key)
-- `telegram_username` (string, nullable)
-- `telegram_data` (jsonb)
-- `nickname` (string, nullable)
+### Creating the Database Schema
+
+1. Go to your Supabase project dashboard
+2. Navigate to **SQL Editor**
+3. Copy and paste the contents of `database/schema.sql`
+4. Click **Run** to execute the SQL
+
+Alternatively, you can run the SQL file directly:
+```bash
+# If you have psql installed
+psql -h your-db-host -U postgres -d postgres -f database/schema.sql
+```
+
+### Database Schema
+
+The `profiles` table has the following structure:
+- `id` (BIGSERIAL, primary key, auto-generated)
+- `telegram_id` (BIGINT, unique, not null) - Used for upsert operations
+- `telegram_username` (TEXT, nullable)
+- `telegram_data` (JSONB) - Stores full Telegram user object
+- `nickname` (TEXT, nullable)
+- `created_at` (TIMESTAMPTZ, auto-generated)
+- `updated_at` (TIMESTAMPTZ, auto-updated)
+
+The schema includes:
+- Indexes on `telegram_id` and `nickname` for performance
+- Automatic `updated_at` timestamp updates
+- Row Level Security (RLS) enabled (adjust policies as needed)
 
 ## Security
 

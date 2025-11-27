@@ -4,6 +4,13 @@ from features.auth.router import router as auth_router
 from features.nickname.router import router as nickname_router
 from core.config import settings
 import uvicorn
+import logging
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 
 app = FastAPI()
 
