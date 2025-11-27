@@ -25,6 +25,7 @@ def validate_init_data(init_data: str) -> dict:
     # Parse the query string - preserve original values as they come
     params_dict = {}
     hash_value = None
+    signature_value = None
     
     # Handle both URL-encoded and already-decoded data
     for pair in init_data.split('&'):
@@ -33,10 +34,22 @@ def validate_init_data(init_data: str) -> dict:
         key, value = pair.split('=', 1)  # Split only on first '='
         if key == 'hash':
             hash_value = value
+        elif key == 'signature':
+            signature_value = value
         else:
             # Store the value as-is (might be encoded or decoded)
             if key not in params_dict:
                 params_dict[key] = value
+    
+    # Check if this is Web App (hash) or Mini App (signature) format
+    if not hash_value and not signature_value:
+        logger.error(f"Neither 'hash' nor 'signature' found in init data. Available keys: {list(params_dict.keys())}")
+        raise ValueError("Neither 'hash' nor 'signature' found in init data. Make sure you're sending Telegram Web App init data.")
+    
+    # Use signature if hash is not available (for Mini Apps)
+    if not hash_value and signature_value:
+        logger.warning("Found 'signature' instead of 'hash'. This might be Mini App data, not Web App data.")
+        raise ValueError("This endpoint expects Telegram Web App init data (with 'hash' and 'user'), not Mini App data (with 'signature' and 'query_id'). Please use window.Telegram.WebApp.initData from a Web App.")
     
     if not hash_value:
         raise ValueError("hash not found in init data")
@@ -123,7 +136,15 @@ def validate_init_data(init_data: str) -> dict:
     
     user_str_raw = params_dict.get("user")
     if not user_str_raw:
-        raise ValueError("User not found in init data")
+        available_params = list(params_dict.keys())
+        logger.error(f"User parameter not found. Available parameters: {available_params}")
+        if "query_id" in available_params:
+            raise ValueError(
+                "This appears to be Mini App init data (has 'query_id'), not Web App init data. "
+                "Web App init data should contain 'user' and 'hash' parameters. "
+                "Please use window.Telegram.WebApp.initData from a Telegram Web App."
+            )
+        raise ValueError("User not found in init data. Make sure you're sending Web App init data with a 'user' parameter.")
     
     try:
         # Decode the user JSON string if it's URL-encoded
