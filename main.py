@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from features.auth.router import router as auth_router
-from features.nickname.router import router as nickname_router
 from core.config import settings
 import uvicorn
 import logging
@@ -23,7 +22,6 @@ app.add_middleware(
 )
 
 app.include_router(auth_router)
-app.include_router(nickname_router)
 
 @app.get("/")
 def health_check():
