@@ -10,7 +10,6 @@ class User(BaseModel):
     profile_photo_url: Optional[str] = None
     language_code: Optional[str] = "en"
     nickname: str
-    nickname_set_at: Optional[datetime] = None
     age: Optional[int] = None
     gender: Optional[str] = None
     bio: Optional[str] = None
