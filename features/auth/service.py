@@ -43,3 +43,9 @@ def login_or_register(init_data: str):
             return {"user": User(**insert_response.data[0])}
         else:
             raise HTTPException(status_code=500, detail="Failed to create user")
+
+def update_user(user_id: int, user_data: dict):
+    response = supabase.table("users").update(user_data).eq("id", user_id).execute()
+    if response.data and len(response.data) > 0:
+        return response.data[0]
+    return None

@@ -28,6 +28,17 @@ class User(BaseModel):
     class Config:
         from_attributes = True
 
+class UserUpdate(BaseModel):
+    """Schema for updating user profile fields. Only these fields can be updated."""
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    age: Optional[int] = None
+    gender: Optional[str] = None
+    bio: Optional[str] = None
+    interests: Optional[list[str]] = None
+    photo_urls: Optional[list[str]] = None
+    social_links: Optional[dict] = None
+
 class AuthResponse(BaseModel):
     user: User
     nickname_suggestions: Optional[list[str]] = None
