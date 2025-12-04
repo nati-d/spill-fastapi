@@ -1,8 +1,11 @@
-from fastapi import HTTPException
+from fastapi import HTTPException, UploadFile
 from database.supabase import supabase
 from features.nickname.service import generate_nickname
-from utils.telegram import validate_init_data
+from utils.telegram import validate_init_data, upload_image_to_telegram
 from features.auth.schemas import User
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def _get_user_dict(telegram_user) -> dict:
@@ -49,3 +52,41 @@ def update_user(user_id: int, user_data: dict):
     if response.data and len(response.data) > 0:
         return response.data[0]
     return None
+
+
+async def process_photo_uploads(photos: list[UploadFile], user_id: int) -> list[str]:
+    """
+    Process uploaded photos, upload them to Telegram, and return the URLs.
+    
+    Args:
+        photos: List of uploaded photo files
+        user_id: User ID for the caption
+        
+    Returns:
+        List of photo URLs from Telegram
+    """
+    photo_urls = []
+    
+    for photo in photos:
+        try:
+            # Read file bytes
+            file_bytes = await photo.read()
+            
+            # Generate file name if not provided
+            file_name = photo.filename or f"photo_{user_id}_{len(photo_urls)}.jpg"
+            
+            # Create caption
+            caption = f"User {user_id} profile photo"
+            
+            # Upload to Telegram
+            photo_url = upload_image_to_telegram(file_bytes, file_name, caption)
+            photo_urls.append(photo_url)
+            
+        except Exception as e:
+            logger.error(f"Error uploading photo {photo.filename}: {e}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to upload photo {photo.filename}: {str(e)}"
+            )
+    
+    return photo_urls

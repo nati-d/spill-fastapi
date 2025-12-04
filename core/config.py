@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     TELEGRAM_BOT_TOKEN: str
     port: int = int(os.getenv("PORT", "8000"))  # Render provides PORT env var
     dev_mode: bool = False
+    TELEGRAM_CHANNEL_ID: str
 
     class Config:
         env_file = ".env"
