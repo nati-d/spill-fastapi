@@ -18,7 +18,7 @@ def validate_init_data(init_data: str):
 def upload_image_to_telegram(file_bytes: bytes, file_name: str, caption: str) -> str:
     """
     Upload an image to Telegram and return the file URL.
-    
+
     Args:
         file_bytes: The image file as bytes
         file_name: Name of the file
